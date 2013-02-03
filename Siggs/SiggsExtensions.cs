@@ -39,11 +39,39 @@ namespace Siggs
                 foreach (var parameterInfo in mi.GetParameters())
                 {
                     var propertyName = parameterInfo.Name;
-                    FieldBuilder backingField = typeBuilder.DefineField("_" + propertyName, typeof (string),
-                                                                        FieldAttributes.Private);
-                    PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(propertyName,
-                                                                          System.Reflection.PropertyAttributes.
+                    FieldBuilder backingField = typeBuilder.DefineField("_" + propertyName, typeof (string), FieldAttributes.Private);
+                    PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(propertyName, System.Reflection.PropertyAttributes.
                                                                               HasDefault, typeof (string), null);
+                    
+                    foreach (var customAttributeData in parameterInfo.GetCustomAttributesData())
+                    {
+                        var ctorArgs = customAttributeData.ConstructorArguments.Select(c => c.Value);
+                        var namedArguments = customAttributeData.NamedArguments;
+                        CustomAttributeData data = customAttributeData;
+                        var namedProperties = namedArguments.Where(a => !a.IsField).Select(a =>
+                            new
+                            {
+                                Property = data.AttributeType.GetProperty(a.MemberName),
+                                Value = a.TypedValue.Value
+                            });
+                        var namedFields = namedArguments.Where(a => a.IsField).Select(a =>
+                                                    new
+                                                    {
+                                                        Field = data.AttributeType.GetField(a.MemberName),
+                                                        Value = a.TypedValue.Value
+                                                    });
+
+                        var cab = new CustomAttributeBuilder(
+                            customAttributeData.Constructor, 
+                            ctorArgs.ToArray(),
+                            namedProperties.Select(p => p.Property).ToArray(),
+                            namedProperties.Select(p => p.Value).ToArray(),
+                            namedFields.Select(p => p.Field).ToArray(),
+                            namedFields.Select(p => p.Value).ToArray()
+                            );
+                        propertyBuilder.SetCustomAttribute(cab);
+                    }
+
 
                     // Custom attributes for get, set accessors
                     MethodAttributes getSetAttr = MethodAttributes.Public | MethodAttributes.HideBySig |
@@ -74,12 +102,7 @@ namespace Siggs
                     propertyBuilder.SetSetMethod(setter);
 
 
-                    //foreach (var attribute in parameterInfo.GetCustomAttributes(false))
-                    //{
-                    //    propertyBuilder.SetCustomAttribute(char, );
-                    //}
-
-
+                    
                 }
                 typeBuilder.CreateType();
                 var type = asmBuilder.GetType(name);

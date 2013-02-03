@@ -25,10 +25,19 @@ namespace Siggs.Tests
         }
 
         [Test]
-        public void CanGenerateAttributes()
+        public void CanGenerateSimpleAttributes()
         {
             var property = type.GetProperty("message");
-            var attribute = type.GetCustomAttributes().OfType<SomeAttribute>().Single();
+            var attribute = property.GetCustomAttributes().OfType<SimpleAttribute>().Single();
+        }
+        [Test]
+        public void CanGenerateComplexAttributes()
+        {
+            var property = type.GetProperty("message");
+            var attribute = property.GetCustomAttributes().OfType<ComplexAttribute>().Single();
+            Assert.AreEqual("goodbye", attribute.A);
+            Assert.AreEqual("cruel", attribute.B);
+            Assert.AreEqual("world", attribute.C);
         }
 
     }
