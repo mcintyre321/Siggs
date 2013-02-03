@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Siggs", "Siggs\Siggs.csproj", "{34B5A920-8A69-4E8F-9108-E62D7DDEB515}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Siggs.Tests", "Siggs.Tests\Siggs.Tests.csproj", "{4861B311-19B2-41E0-8868-D2E884ECBDFF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Siggs.Tests.Domain", "Siggs.Tests.Domain\Siggs.Tests.Domain.csproj", "{A3EB339F-C4D7-4886-9D2D-F3FCF676786A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{34B5A920-8A69-4E8F-9108-E62D7DDEB515}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34B5A920-8A69-4E8F-9108-E62D7DDEB515}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34B5A920-8A69-4E8F-9108-E62D7DDEB515}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34B5A920-8A69-4E8F-9108-E62D7DDEB515}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4861B311-19B2-41E0-8868-D2E884ECBDFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4861B311-19B2-41E0-8868-D2E884ECBDFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4861B311-19B2-41E0-8868-D2E884ECBDFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4861B311-19B2-41E0-8868-D2E884ECBDFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3EB339F-C4D7-4886-9D2D-F3FCF676786A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3EB339F-C4D7-4886-9D2D-F3FCF676786A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3EB339F-C4D7-4886-9D2D-F3FCF676786A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3EB339F-C4D7-4886-9D2D-F3FCF676786A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
