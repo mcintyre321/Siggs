@@ -39,9 +39,9 @@ namespace Siggs
                 foreach (var parameterInfo in mi.GetParameters())
                 {
                     var propertyName = parameterInfo.Name;
-                    FieldBuilder backingField = typeBuilder.DefineField("_" + propertyName, typeof (string), FieldAttributes.Private);
+                    FieldBuilder backingField = typeBuilder.DefineField("_" + propertyName, parameterInfo.ParameterType, FieldAttributes.Private);
                     PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(propertyName, System.Reflection.PropertyAttributes.
-                                                                              HasDefault, typeof (string), null);
+                                                                              HasDefault, parameterInfo.ParameterType, null);
                     
                     foreach (var customAttributeData in parameterInfo.GetCustomAttributesData())
                     {
@@ -77,18 +77,15 @@ namespace Siggs
                     MethodAttributes getSetAttr = MethodAttributes.Public | MethodAttributes.HideBySig |
                                                   MethodAttributes.SpecialName;
 
-                    // get,set accessors for FirstName
-                    MethodBuilder getter = typeBuilder.DefineMethod("get_" + propertyName, getSetAttr, typeof (string),
-                                                                    Type.EmptyTypes);
+                    MethodBuilder getter = typeBuilder.DefineMethod("get_" + propertyName, getSetAttr, parameterInfo.ParameterType, Type.EmptyTypes);
 
                     // Code generation
                     ilgen = getter.GetILGenerator();
                     ilgen.Emit(OpCodes.Ldarg_0);
-                    ilgen.Emit(OpCodes.Ldfld, backingField); // returning the firstname field
+                    ilgen.Emit(OpCodes.Ldfld, backingField); 
                     ilgen.Emit(OpCodes.Ret);
 
-                    MethodBuilder setter = typeBuilder.DefineMethod("set_" + propertyName, getSetAttr, null,
-                                                                    new Type[] {typeof (string)});
+                    MethodBuilder setter = typeBuilder.DefineMethod("set_" + propertyName, getSetAttr, null, new Type[] {parameterInfo.ParameterType});
 
                     // Code generation
                     ilgen = setter.GetILGenerator();

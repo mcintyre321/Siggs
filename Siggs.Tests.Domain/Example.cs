@@ -7,7 +7,7 @@ namespace Siggs.Tests.Domain
 {
     public class Example
     {
-        public void Method([Simple] [Complex("goodbye", B = "cruel", C = "world")] string message)
+        public void Method([Simple] [Complex("goodbye", B = 10, C = "world")] string message, SomeComplexType someComplexType)
         {
             
         }

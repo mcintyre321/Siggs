@@ -36,11 +36,17 @@ namespace Siggs.Tests
             var property = type.GetProperty("message");
             var attribute = property.GetCustomAttributes().OfType<ComplexAttribute>().Single();
             Assert.AreEqual("goodbye", attribute.A);
-            Assert.AreEqual("cruel", attribute.B);
+            Assert.AreEqual(10, attribute.B);
             Assert.AreEqual("world", attribute.C);
         }
 
-    }
+        [Test]
+        public void CanGenerateComplexAttributesOfTheCorrectType()
+        {
+            var property = type.GetProperty("someComplexType");
+            Assert.AreEqual(typeof(SomeComplexType), property.PropertyType);
+        }
 
-    
+
+    }
 }
