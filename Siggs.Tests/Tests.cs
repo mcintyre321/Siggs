@@ -46,6 +46,13 @@ namespace Siggs.Tests
             var property = type.GetProperty("someComplexType");
             Assert.AreEqual(typeof(SomeComplexType), property.PropertyType);
         }
+        [Test]
+        public void TypeIsFunctional()
+        {
+            dynamic instance = Activator.CreateInstance(type);
+            instance.someComplexType = new SomeComplexType() {Value = "hello"};
+            Assert.AreEqual("hello", instance.someComplexType.Value);
+        }
 
 
     }
