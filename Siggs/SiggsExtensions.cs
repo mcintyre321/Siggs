@@ -39,6 +39,7 @@ namespace Siggs
                 foreach (var parameterInfo in mi.GetParameters())
                 {
                     var propertyName = parameterInfo.Name;
+                    if (mi.Name.StartsWith("set_")) propertyName = mi.Name.Substring(4);
                     FieldBuilder backingField = typeBuilder.DefineField("_" + propertyName, parameterInfo.ParameterType, FieldAttributes.Private);
                     PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(propertyName, System.Reflection.PropertyAttributes.
                                                                               HasDefault, parameterInfo.ParameterType, null);

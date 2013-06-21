@@ -11,5 +11,6 @@ namespace Siggs.Tests.Domain
         {
             
         }
+        public string Property { get; set; }
     }
 }
