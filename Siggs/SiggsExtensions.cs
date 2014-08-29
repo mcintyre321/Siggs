@@ -30,18 +30,53 @@ namespace Siggs
             var methodName = mi.Name;
             var classFullName = mi.DeclaringType.FullName;
             var parameterInfos =
-                mi.GetParameters().Select(pi => new GenericParameterInfo { Name = pi.Name, ParameterType = pi.ParameterType, GetCustomAttributes = () => pi.GetCustomAttributesData().ToArray() });
+                mi.GetParameters().Select(pi => new GenericParameterInfo { Name = pi.Name, ParameterType = pi.ParameterType, GetCustomAttributes = () => pi.GetCustomAttributesData().Select(ToBuilder).ToArray() });
             var key = classFullName + "." + methodName;
             return GetTypeForGenericMethodInfo(key, methodName, classFullName, parameterInfos);
         }
- 
+
+        public static CustomAttributeBuilder ToCustomAttributeData(this Attribute attribute)
+        {
+            Type type = attribute.GetType();
+            
+            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Select(p => new {p, Type= p.PropertyType});
+
+            
+            var namedProperties = properties.Where(p => p.p.CanWrite).Select(p => p.p).ToArray();
+            var namedPropertyValues = namedProperties.Select(p => p.GetValue(attribute)).ToArray();
+
+            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance)
+                .Select(p => new { p, Type = p.FieldType });
+
+            var namedFields = fields.Select(p => p.p).ToArray();
+            var namedFieldValues = namedFields.Select(p => p.GetValue(attribute)).ToArray();
+
+            var constructor = type.GetConstructor(Type.EmptyTypes);
+
+            return new CustomAttributeBuilder(constructor, Type.EmptyTypes, namedProperties, namedPropertyValues, namedFields, namedFieldValues);
+        }
+
+        public static CustomAttributeBuilder ToBuilder(this CustomAttributeData customAttributeData)
+        {
+            var ctorArgs = customAttributeData.ConstructorArguments.Select(c => c.Value);
+            var namedArguments = customAttributeData.NamedArguments;
+            CustomAttributeData data = customAttributeData;
+            var namedProperties = namedArguments.Where(a => !a.IsField).Select(a => new {Property = data.AttributeType.GetProperty(a.MemberName), Value = a.TypedValue.Value});
+            var namedFields = namedArguments.Where(a => a.IsField).Select(a => new {Field = data.AttributeType.GetField(a.MemberName), Value = a.TypedValue.Value});
+
+            var cab = new CustomAttributeBuilder(customAttributeData.Constructor, ctorArgs.ToArray(), namedProperties.Select(p => p.Property).ToArray(), namedProperties.Select(p => p.Value).ToArray(),
+                namedFields.Select(p => p.Field).ToArray(), namedFields.Select(p => p.Value).ToArray());
+            return cab;
+        }
+
 
         public static Type GetTypeForGenericMethodInfo(string fullnameAndMethodName, string methodName, string classFullName, IEnumerable<GenericParameterInfo> parameterInfos)
         {
             return typeCache.GetOrAdd(fullnameAndMethodName, (k) => BuildType(methodName, classFullName, parameterInfos));
         }
 
-        private static Type BuildType(string methodName, string classFullName, IEnumerable<GenericParameterInfo> parameterInfos)
+        private static TypeInfo BuildType(string methodName, string classFullName, IEnumerable<GenericParameterInfo> parameterInfos)
         {
             var fullnameAndMethodName = classFullName + "." + methodName;
 
@@ -63,15 +98,7 @@ namespace Siggs
 
                 foreach (var customAttributeData in parameterInfo.GetCustomAttributes())
                 {
-                    var ctorArgs = customAttributeData.ConstructorArguments.Select(c => c.Value);
-                    var namedArguments = customAttributeData.NamedArguments;
-                    CustomAttributeData data = customAttributeData;
-                    var namedProperties = namedArguments.Where(a => !a.IsField).Select(a => new {Property = data.AttributeType.GetProperty(a.MemberName), Value = a.TypedValue.Value});
-                    var namedFields = namedArguments.Where(a => a.IsField).Select(a => new {Field = data.AttributeType.GetField(a.MemberName), Value = a.TypedValue.Value});
-
-                    var cab = new CustomAttributeBuilder(customAttributeData.Constructor, ctorArgs.ToArray(), namedProperties.Select(p => p.Property).ToArray(),
-                        namedProperties.Select(p => p.Value).ToArray(), namedFields.Select(p => p.Field).ToArray(), namedFields.Select(p => p.Value).ToArray());
-                    propertyBuilder.SetCustomAttribute(cab);
+                     propertyBuilder.SetCustomAttribute(customAttributeData);
                 }
 
 
@@ -104,7 +131,8 @@ namespace Siggs
             }
             typeBuilder.CreateType();
             var type = asmBuilder.GetType(fullnameAndMethodName);
-            return type;
+            var buildType = type.GetTypeInfo();
+            return buildType;
         }
 
     }
@@ -114,7 +142,7 @@ namespace Siggs
     {
         public string Name { get; set; }
         public Type ParameterType { get; set; }
-        public Func<CustomAttributeData[]> GetCustomAttributes { get; set; }
+        public Func<CustomAttributeBuilder[]> GetCustomAttributes { get; set; }
 
     }
 
